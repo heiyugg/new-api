@@ -120,7 +120,7 @@ For detailed configuration instructions, please refer to [Installation Guide-Env
 For detailed deployment guides, please refer to [Installation Guide-Deployment Methods](https://docs.newapi.pro/installation):
 
 > [!TIP]
-> Latest Docker image: `calciumion/new-api:latest`
+> Latest Docker image: `heiyu368/new-api:alpha`
 
 ### Multi-machine Deployment Considerations
 - Environment variable `SESSION_SECRET` must be set, otherwise login status will be inconsistent across multiple machines
@@ -139,7 +139,7 @@ Install BaoTa Panel (version **9.2.0** or above), find **New-API** in the applic
 #### Using Docker Compose (Recommended)
 ```shell
 # Download the project
-git clone https://github.com/Calcium-Ion/new-api.git
+git clone https://github.com/heiyugg/new-api.git
 cd new-api
 # Edit docker-compose.yml as needed
 # Start
