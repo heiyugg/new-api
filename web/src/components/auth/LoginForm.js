@@ -71,10 +71,27 @@ const LoginForm = () => {
     localStorage.setItem('aff', affCode);
   }
 
-  const [status] = useState(() => {
-    const savedStatus = localStorage.getItem('status');
-    return savedStatus ? JSON.parse(savedStatus) : {};
-  });
+  const [status, setStatus] = useState({});
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await API.get('/api/status');
+        if (res.data.success) {
+          setStatus(res.data.data);
+          localStorage.setItem('status', JSON.stringify(res.data.data));
+        }
+      } catch (error) {
+        console.error('Failed to fetch status:', error);
+        // 如果API调用失败，尝试从localStorage获取
+        const savedStatus = localStorage.getItem('status');
+        if (savedStatus) {
+          setStatus(JSON.parse(savedStatus));
+        }
+      }
+    };
+    fetchStatus();
+  }, []);
 
   useEffect(() => {
     if (status.turnstile_check) {

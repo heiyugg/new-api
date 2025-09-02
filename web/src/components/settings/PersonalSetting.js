@@ -14,6 +14,7 @@ import {
   onGitHubOAuthClicked,
   onOIDCClicked,
   onLinuxDOOAuthClicked,
+  onNodelocOAuthBindClicked,
   renderModelTag,
   getModelCategories
 } from '../../helpers';
@@ -60,6 +61,7 @@ import { SiTelegram, SiWechat, SiLinux } from 'react-icons/si';
 import { Bell, Shield, Webhook, Globe, Settings, UserPlus, ShieldCheck } from 'lucide-react';
 import TelegramLoginButton from 'react-telegram-login';
 import { useTranslation } from 'react-i18next';
+import NodelocIcon from '../common/logo/NodelocIcon';
 
 const PersonalSetting = () => {
   const [userState, userDispatch] = useContext(UserContext);
@@ -926,6 +928,42 @@ const PersonalSetting = () => {
                             className="!rounded-lg"
                           >
                             {status.linuxdo_oauth ? t('绑定') : t('未启用')}
+                          </Button>
+                        </div>
+                      </Card>
+
+                      {/* Nodeloc绑定 */}
+                      <Card
+                        className="!rounded-xl transition-shadow"
+                        bodyStyle={{ padding: '16px' }}
+                        shadows='hover'
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center flex-1">
+                            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-3">
+                              <NodelocIcon size={20} className="text-slate-600 dark:text-slate-300" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-gray-900">{t('Nodeloc')}</div>
+                              <div className="text-sm text-gray-500 truncate">
+                                {userState.user && userState.user.nodeloc_id !== ''
+                                  ? userState.user.nodeloc_id
+                                  : t('未绑定')}
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            type="primary"
+                            theme="outline"
+                            size="small"
+                            onClick={() => onNodelocOAuthBindClicked(status.nodeloc_client_id)}
+                            disabled={
+                              (userState.user && userState.user.nodeloc_id !== '') ||
+                              !status.nodeloc_oauth
+                            }
+                            className="!rounded-lg"
+                          >
+                            {status.nodeloc_oauth ? t('绑定') : t('未启用')}
                           </Button>
                         </div>
                       </Card>
