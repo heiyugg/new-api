@@ -142,7 +142,7 @@ New API提供了丰富的功能，详细特性请参考[特性说明](https://do
 详细部署指南请参考[安装指南-部署方式](https://docs.newapi.pro/installation)：
 
 > [!TIP]
-> 最新版Docker镜像：`calciumion/new-api:latest`  
+> 最新版Docker镜像：`heiyu368/new-api:alpha`  
 
 ### 多机部署注意事项
 - 必须设置环境变量 `SESSION_SECRET`，否则会导致多机部署时登录状态不一致
