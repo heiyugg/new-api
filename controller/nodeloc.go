@@ -124,19 +124,41 @@ func NodelocOAuth(c *gin.Context) {
 	errorCode := c.Query("error")
 	if errorCode != "" {
 		errorDescription := c.Query("error_description")
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": errorDescription,
-		})
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(fmt.Sprintf(`
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<title>登录失败</title>
+				<meta charset="utf-8">
+			</head>
+			<body>
+				<script>
+					alert('OAuth错误: %s');
+					window.close();
+				</script>
+			</body>
+			</html>
+		`, errorDescription)))
 		return
 	}
 
 	state := c.Query("state")
 	if state == "" || session.Get("oauth_state") == nil || state != session.Get("oauth_state").(string) {
-		c.JSON(http.StatusForbidden, gin.H{
-			"success": false,
-			"message": "state is empty or not same",
-		})
+		c.Data(http.StatusForbidden, "text/html; charset=utf-8", []byte(`
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<title>登录失败</title>
+				<meta charset="utf-8">
+			</head>
+			<body>
+				<script>
+					alert('状态验证失败，请重试');
+					window.close();
+				</script>
+			</body>
+			</html>
+		`))
 		return
 	}
 
@@ -147,17 +169,42 @@ func NodelocOAuth(c *gin.Context) {
 	}
 
 	if !system_setting.GetNodelocOAuthSettings().Enabled {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "管理员未开启通过 Nodeloc 登录以及注册",
-		})
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<title>登录失败</title>
+				<meta charset="utf-8">
+			</head>
+			<body>
+				<script>
+					alert('管理员未开启通过 Nodeloc 登录以及注册');
+					window.close();
+				</script>
+			</body>
+			</html>
+		`))
 		return
 	}
 
 	code := c.Query("code")
 	nodelocUser, err := getNodelocUserInfoByCode(code, c)
 	if err != nil {
-		common.ApiError(c, err)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(fmt.Sprintf(`
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<title>登录失败</title>
+				<meta charset="utf-8">
+			</head>
+			<body>
+				<script>
+					alert('获取用户信息失败: %s');
+					window.close();
+				</script>
+			</body>
+			</html>
+		`, err.Error())))
 		return
 	}
 
@@ -169,17 +216,39 @@ func NodelocOAuth(c *gin.Context) {
 	if model.IsNodelocIdAlreadyTaken(user.NodelocId) {
 		err := user.FillUserByNodelocId()
 		if err != nil {
-			c.JSON(http.StatusOK, gin.H{
-				"success": false,
-				"message": err.Error(),
-			})
+			c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(fmt.Sprintf(`
+				<!DOCTYPE html>
+				<html>
+				<head>
+					<title>登录失败</title>
+					<meta charset="utf-8">
+				</head>
+				<body>
+					<script>
+						alert('获取用户信息失败: %s');
+						window.close();
+					</script>
+				</body>
+				</html>
+			`, err.Error())))
 			return
 		}
 		if user.Id == 0 {
-			c.JSON(http.StatusOK, gin.H{
-				"success": false,
-				"message": "用户已注销",
-			})
+			c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
+				<!DOCTYPE html>
+				<html>
+				<head>
+					<title>登录失败</title>
+					<meta charset="utf-8">
+				</head>
+				<body>
+					<script>
+						alert('用户已注销');
+						window.close();
+					</script>
+				</body>
+				</html>
+			`))
 			return
 		}
 	} else {
@@ -205,30 +274,107 @@ func NodelocOAuth(c *gin.Context) {
 			}
 
 			if err := user.Insert(inviterId); err != nil {
-				c.JSON(http.StatusOK, gin.H{
-					"success": false,
-					"message": err.Error(),
-				})
+				c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(fmt.Sprintf(`
+					<!DOCTYPE html>
+					<html>
+					<head>
+						<title>登录失败</title>
+						<meta charset="utf-8">
+					</head>
+					<body>
+						<script>
+							alert('用户注册失败: %s');
+							window.close();
+						</script>
+					</body>
+					</html>
+				`, err.Error())))
 				return
 			}
 		} else {
-			c.JSON(http.StatusOK, gin.H{
-				"success": false,
-				"message": "管理员关闭了新用户注册",
-			})
+			c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
+				<!DOCTYPE html>
+				<html>
+				<head>
+					<title>登录失败</title>
+					<meta charset="utf-8">
+				</head>
+				<body>
+					<script>
+						alert('管理员关闭了新用户注册');
+						window.close();
+					</script>
+				</body>
+				</html>
+			`))
 			return
 		}
 	}
 
 	if user.Status != common.UserStatusEnabled {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "用户已被封禁",
-			"success": false,
-		})
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<title>登录失败</title>
+				<meta charset="utf-8">
+			</head>
+			<body>
+				<script>
+					alert('用户已被封禁');
+					window.close();
+				</script>
+			</body>
+			</html>
+		`))
 		return
 	}
 
-	setupLogin(&user, c)
+	// 设置登录会话
+	session.Set("id", user.Id)
+	session.Set("username", user.Username)
+	session.Set("role", user.Role)
+	session.Set("status", user.Status)
+	session.Set("group", user.Group)
+	err = session.Save()
+	if err != nil {
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<title>登录失败</title>
+				<meta charset="utf-8">
+			</head>
+			<body>
+				<script>
+					alert('无法保存会话信息，请重试');
+					window.close();
+				</script>
+			</body>
+			</html>
+		`))
+		return
+	}
+
+	// 成功登录后关闭窗口并刷新父窗口
+	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<title>登录成功</title>
+			<meta charset="utf-8">
+		</head>
+		<body>
+			<script>
+				alert('登录成功！');
+				if (window.opener) {
+					window.opener.location.reload();
+				}
+				window.close();
+			</script>
+		</body>
+		</html>
+	`))
 }
 
 func NodelocBind(c *gin.Context) {
