@@ -70,6 +70,14 @@ func UpdateOption(c *gin.Context) {
 			})
 			return
 		}
+	case "nodeloc_oauth.enabled":
+		if option.Value == "true" && system_setting.GetNodelocOAuthSettings().ClientId == "" {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "无法启用 Nodeloc OAuth，请先填入 Nodeloc Client Id 以及 Nodeloc Client Secret！",
+			})
+			return
+		}
 	case "EmailDomainRestrictionEnabled":
 		if option.Value == "true" && len(common.EmailDomainWhitelist) == 0 {
 			c.JSON(http.StatusOK, gin.H{

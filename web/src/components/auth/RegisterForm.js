@@ -26,9 +26,11 @@ import {
   onGitHubOAuthClicked,
   onLinuxDOOAuthClicked,
   onOIDCClicked,
+  onNodelocOAuthClicked,
 } from '../../helpers/index.js';
 import OIDCIcon from '../common/logo/OIDCIcon.js';
 import LinuxDoIcon from '../common/logo/LinuxDoIcon.js';
+import NodelocIcon from '../common/logo/NodelocIcon.js';
 import WeChatIcon from '../common/logo/WeChatIcon.js';
 import TelegramLoginButton from 'react-telegram-login/src';
 import { UserContext } from '../../context/User/index.js';
@@ -56,6 +58,7 @@ const RegisterForm = () => {
   const [githubLoading, setGithubLoading] = useState(false);
   const [oidcLoading, setOidcLoading] = useState(false);
   const [linuxdoLoading, setLinuxdoLoading] = useState(false);
+  const [nodelocLoading, setNodelocLoading] = useState(false);
   const [emailRegisterLoading, setEmailRegisterLoading] = useState(false);
   const [registerLoading, setRegisterLoading] = useState(false);
   const [verificationCodeLoading, setVerificationCodeLoading] = useState(false);
@@ -219,6 +222,20 @@ const RegisterForm = () => {
     }
   };
 
+  // 包装的Nodeloc注册点击处理
+  const handleNodelocClick = () => {
+    setNodelocLoading(true);
+    try {
+      onNodelocOAuthClicked(
+        status.nodeloc_client_id,
+        status.nodeloc_auth_endpoint
+      );
+    } finally {
+      // 由于重定向，这里不会执行到，但为了完整性添加
+      setTimeout(() => setNodelocLoading(false), 3000);
+    }
+  };
+
   const handleEmailRegisterClick = () => {
     setEmailRegisterLoading(true);
     setShowEmailRegister(true);
@@ -334,6 +351,20 @@ const RegisterForm = () => {
                     loading={linuxdoLoading}
                   >
                     <span className="ml-3">{t('使用 LinuxDO 继续')}</span>
+                  </Button>
+                )}
+
+                {status.nodeloc_oauth && (
+                  <Button
+                    theme='outline'
+                    className="w-full h-12 flex items-center justify-center !rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
+                    type="tertiary"
+                    icon={<NodelocIcon style={{ color: '#2563EB', width: '20px', height: '20px' }} />}
+                    size="large"
+                    onClick={handleNodelocClick}
+                    loading={nodelocLoading}
+                  >
+                    <span className="ml-3">{t('使用 Nodeloc 继续')}</span>
                   </Button>
                 )}
 
@@ -468,7 +499,7 @@ const RegisterForm = () => {
                 </div>
               </Form>
 
-              {(status.github_oauth || status.oidc_enabled || status.wechat_login || status.linuxdo_oauth || status.telegram_oauth) && (
+              {(status.github_oauth || status.oidc_enabled || status.wechat_login || status.linuxdo_oauth || status.nodeloc_oauth || status.telegram_oauth) && (
                 <>
                   <Divider margin='12px' align='center'>
                     {t('或')}
@@ -541,7 +572,7 @@ const RegisterForm = () => {
       <div className="blur-ball blur-ball-indigo" style={{ top: '-80px', right: '-80px', transform: 'none' }} />
       <div className="blur-ball blur-ball-teal" style={{ top: '50%', left: '-120px' }} />
       <div className="w-full max-w-sm mt-[64px]">
-        {showEmailRegister || !(status.github_oauth || status.oidc_enabled || status.wechat_login || status.linuxdo_oauth || status.telegram_oauth)
+        {showEmailRegister || !(status.github_oauth || status.oidc_enabled || status.wechat_login || status.linuxdo_oauth || status.nodeloc_oauth || status.telegram_oauth)
           ? renderEmailRegisterForm()
           : renderOAuthOptions()}
         {renderWeChatLoginModal()}

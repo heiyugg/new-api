@@ -223,6 +223,16 @@ export async function onLinuxDOOAuthClicked(linuxdo_client_id) {
   );
 }
 
+export async function onNodelocOAuthClicked(nodeloc_client_id, auth_endpoint) {
+  const state = await getOAuthState();
+  if (!state) return;
+  const redirect_uri = `${window.location.origin}/oauth/nodeloc`;
+  const response_type = 'code';
+  const scope = 'openid profile email';
+  const url = `${auth_endpoint}?client_id=${nodeloc_client_id}&redirect_uri=${redirect_uri}&response_type=${response_type}&scope=${scope}&state=${state}`;
+  window.open(url);
+}
+
 let channelModels = undefined;
 export async function loadChannelModels() {
   const res = await API.get('/api/models');

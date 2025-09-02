@@ -38,6 +38,13 @@ const SystemSetting = () => {
     'oidc.authorization_endpoint': '',
     'oidc.token_endpoint': '',
     'oidc.user_info_endpoint': '',
+    'nodeloc_oauth.enabled': '',
+    'nodeloc_oauth.client_id': '',
+    'nodeloc_oauth.client_secret': '',
+    'nodeloc_oauth.redirect_uri': '',
+    'nodeloc_oauth.auth_endpoint': '',
+    'nodeloc_oauth.token_endpoint': '',
+    'nodeloc_oauth.user_info_endpoint': '',
     Notice: '',
     SMTPServer: '',
     SMTPPort: '',
@@ -106,6 +113,7 @@ const SystemSetting = () => {
           case 'SMTPSSLEnabled':
           case 'LinuxDOOAuthEnabled':
           case 'oidc.enabled':
+          case 'nodeloc_oauth.enabled':
           case 'WorkerAllowHttpImageRequestEnabled':
             item.value = toBoolean(item.value);
             break;
@@ -459,6 +467,51 @@ const SystemSetting = () => {
     }
   };
 
+  const submitNodelocOAuth = async () => {
+    const options = [];
+
+    if (originInputs['nodeloc_oauth.client_id'] !== inputs['nodeloc_oauth.client_id']) {
+      options.push({ key: 'nodeloc_oauth.client_id', value: inputs['nodeloc_oauth.client_id'] });
+    }
+    if (
+      originInputs['nodeloc_oauth.client_secret'] !== inputs['nodeloc_oauth.client_secret'] &&
+      inputs['nodeloc_oauth.client_secret'] !== ''
+    ) {
+      options.push({
+        key: 'nodeloc_oauth.client_secret',
+        value: inputs['nodeloc_oauth.client_secret'],
+      });
+    }
+    if (originInputs['nodeloc_oauth.redirect_uri'] !== inputs['nodeloc_oauth.redirect_uri']) {
+      options.push({
+        key: 'nodeloc_oauth.redirect_uri',
+        value: inputs['nodeloc_oauth.redirect_uri'],
+      });
+    }
+    if (originInputs['nodeloc_oauth.auth_endpoint'] !== inputs['nodeloc_oauth.auth_endpoint']) {
+      options.push({
+        key: 'nodeloc_oauth.auth_endpoint',
+        value: inputs['nodeloc_oauth.auth_endpoint'],
+      });
+    }
+    if (originInputs['nodeloc_oauth.token_endpoint'] !== inputs['nodeloc_oauth.token_endpoint']) {
+      options.push({
+        key: 'nodeloc_oauth.token_endpoint',
+        value: inputs['nodeloc_oauth.token_endpoint'],
+      });
+    }
+    if (originInputs['nodeloc_oauth.user_info_endpoint'] !== inputs['nodeloc_oauth.user_info_endpoint']) {
+      options.push({
+        key: 'nodeloc_oauth.user_info_endpoint',
+        value: inputs['nodeloc_oauth.user_info_endpoint'],
+      });
+    }
+
+    if (options.length > 0) {
+      await updateOptions(options);
+    }
+  };
+
   const handleCheckboxChange = async (optionKey, event) => {
     const value = event.target.checked;
 
@@ -651,6 +704,15 @@ const SystemSetting = () => {
                         }
                       >
                         {t('允许通过 OIDC 进行登录')}
+                      </Form.Checkbox>
+                      <Form.Checkbox
+                        field="['nodeloc_oauth.enabled']"
+                        noLabel
+                        onChange={(e) =>
+                          handleCheckboxChange('nodeloc_oauth.enabled', e)
+                        }
+                      >
+                        {t('允许通过 Nodeloc 账户登录 & 注册')}
                       </Form.Checkbox>
                     </Col>
                   </Row>
@@ -915,6 +977,89 @@ const SystemSetting = () => {
                   </Row>
                   <Button onClick={submitLinuxDOOAuth}>
                     {t('保存 Linux DO OAuth 设置')}
+                  </Button>
+                </Form.Section>
+              </Card>
+              <Card>
+                <Form.Section text={t('配置 Nodeloc OAuth')}>
+                  <Text>
+                    {t('用以支持通过 Nodeloc 进行登录注册')}
+                    <a
+                      href='https://conn.nodeloc.cc/apps'
+                      target='_blank'
+                      rel='noreferrer'
+                      style={{
+                        display: 'inline-block',
+                        marginLeft: 4,
+                        marginRight: 4,
+                      }}
+                    >
+                      {t('点击此处')}
+                    </a>
+                    {t('管理你的 Nodeloc OAuth App')}
+                  </Text>
+                  <Banner
+                    type='info'
+                    description={`${t('回调 URL 填')} ${inputs.ServerAddress ? inputs.ServerAddress : t('网站地址')}/oauth/nodeloc`}
+                    style={{ marginBottom: 20, marginTop: 16 }}
+                  />
+                  <Row
+                    gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
+                  >
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Input
+                        field="['nodeloc_oauth.client_id']"
+                        label={t('Nodeloc Client ID')}
+                        placeholder={t('输入你注册的 Nodeloc OAuth APP 的 ID')}
+                      />
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Input
+                        field="['nodeloc_oauth.client_secret']"
+                        label={t('Nodeloc Client Secret')}
+                        type='password'
+                        placeholder={t('敏感信息不会发送到前端显示')}
+                      />
+                    </Col>
+                  </Row>
+                  <Row
+                    gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
+                  >
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Input
+                        field="['nodeloc_oauth.redirect_uri']"
+                        label={t('重定向 URI')}
+                        placeholder={t('输入回调地址，留空则自动生成')}
+                      />
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Input
+                        field="['nodeloc_oauth.auth_endpoint']"
+                        label={t('授权端点')}
+                        placeholder={t('输入授权端点 URL')}
+                      />
+                    </Col>
+                  </Row>
+                  <Row
+                    gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
+                  >
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Input
+                        field="['nodeloc_oauth.token_endpoint']"
+                        label={t('令牌端点')}
+                        placeholder={t('输入令牌端点 URL')}
+                      />
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Input
+                        field="['nodeloc_oauth.user_info_endpoint']"
+                        label={t('用户信息端点')}
+                        placeholder={t('输入用户信息端点 URL')}
+                      />
+                    </Col>
+                  </Row>
+                  <Button onClick={submitNodelocOAuth}>
+                    {t('保存 Nodeloc OAuth 设置')}
                   </Button>
                 </Form.Section>
               </Card>
