@@ -161,7 +161,7 @@ New API提供了丰富的功能，详细特性请参考[特性说明](https://do
 #### 使用Docker Compose部署（推荐）
 ```shell
 # 下载项目
-git clone https://github.com/Calcium-Ion/new-api.git
+git clone https://github.com/heiyugg/new-api.git
 cd new-api
 # 按需编辑docker-compose.yml
 # 启动
