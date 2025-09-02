@@ -48,7 +48,7 @@ func GetStatus(c *gin.Context) {
 		"github_client_id":         common.GitHubClientId,
 		"linuxdo_oauth":            common.LinuxDOOAuthEnabled,
 		"linuxdo_client_id":        common.LinuxDOClientId,
-		"nodeloc_oauth":            common.NodelocOAuthEnabled,
+		"nodeloc_oauth":            system_setting.GetNodelocOAuthSettings().Enabled,
 		"nodeloc_client_id":        system_setting.GetNodelocOAuthSettings().ClientId,
 		"nodeloc_auth_endpoint":    system_setting.GetNodelocOAuthSettings().AuthEndpoint,
 		"telegram_oauth":           common.TelegramOAuthEnabled,
