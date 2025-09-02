@@ -78,18 +78,39 @@ const LoginForm = () => {
       try {
         const res = await API.get('/api/status');
         if (res.data.success) {
-          setStatus(res.data.data);
-          localStorage.setItem('status', JSON.stringify(res.data.data));
+          const status = res.data.data;
+          setStatus(status);
+          if (status.turnstile_check) {
+            setTurnstileEnabled(true);
+            setTurnstileSiteKey(status.turnstile_site_key);
+          }
+        } else {
+          // 如果API调用失败，回退到localStorage
+          let status = localStorage.getItem('status');
+          if (status) {
+            status = JSON.parse(status);
+            setStatus(status);
+            if (status.turnstile_check) {
+              setTurnstileEnabled(true);
+              setTurnstileSiteKey(status.turnstile_site_key);
+            }
+          }
         }
       } catch (error) {
         console.error('Failed to fetch status:', error);
-        // 如果API调用失败，尝试从localStorage获取
-        const savedStatus = localStorage.getItem('status');
-        if (savedStatus) {
-          setStatus(JSON.parse(savedStatus));
+        // 如果API调用失败，回退到localStorage
+        let status = localStorage.getItem('status');
+        if (status) {
+          status = JSON.parse(status);
+          setStatus(status);
+          if (status.turnstile_check) {
+            setTurnstileEnabled(true);
+            setTurnstileSiteKey(status.turnstile_site_key);
+          }
         }
       }
     };
+
     fetchStatus();
   }, []);
 

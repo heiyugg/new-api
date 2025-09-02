@@ -111,15 +111,45 @@ const PersonalSetting = () => {
   const [showWebhookDocs, setShowWebhookDocs] = useState(true);
 
   useEffect(() => {
-    let status = localStorage.getItem('status');
-    if (status) {
-      status = JSON.parse(status);
-      setStatus(status);
-      if (status.turnstile_check) {
-        setTurnstileEnabled(true);
-        setTurnstileSiteKey(status.turnstile_site_key);
+    // 从API获取最新状态而不是使用localStorage
+    const fetchStatus = async () => {
+      try {
+        const res = await API.get('/api/status');
+        if (res.data.success) {
+          const status = res.data.data;
+          setStatus(status);
+          if (status.turnstile_check) {
+            setTurnstileEnabled(true);
+            setTurnstileSiteKey(status.turnstile_site_key);
+          }
+        } else {
+          // 如果API调用失败，回退到localStorage
+          let status = localStorage.getItem('status');
+          if (status) {
+            status = JSON.parse(status);
+            setStatus(status);
+            if (status.turnstile_check) {
+              setTurnstileEnabled(true);
+              setTurnstileSiteKey(status.turnstile_site_key);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch status:', error);
+        // 如果API调用失败，回退到localStorage
+        let status = localStorage.getItem('status');
+        if (status) {
+          status = JSON.parse(status);
+          setStatus(status);
+          if (status.turnstile_check) {
+            setTurnstileEnabled(true);
+            setTurnstileSiteKey(status.turnstile_site_key);
+          }
+        }
       }
-    }
+    };
+
+    fetchStatus();
     getUserData().then((res) => {
       console.log(userState);
     });
