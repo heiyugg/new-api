@@ -330,51 +330,8 @@ func NodelocOAuth(c *gin.Context) {
 		return
 	}
 
-	// 设置登录会话
-	session.Set("id", user.Id)
-	session.Set("username", user.Username)
-	session.Set("role", user.Role)
-	session.Set("status", user.Status)
-	session.Set("group", user.Group)
-	err = session.Save()
-	if err != nil {
-		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
-			<!DOCTYPE html>
-			<html>
-			<head>
-				<title>登录失败</title>
-				<meta charset="utf-8">
-			</head>
-			<body>
-				<script>
-					alert('无法保存会话信息，请重试');
-					window.close();
-				</script>
-			</body>
-			</html>
-		`))
-		return
-	}
-
-	// 成功登录后关闭窗口并刷新父窗口
-	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
-		<!DOCTYPE html>
-		<html>
-		<head>
-			<title>登录成功</title>
-			<meta charset="utf-8">
-		</head>
-		<body>
-			<script>
-				alert('登录成功！');
-				if (window.opener) {
-					window.opener.location.reload();
-				}
-				window.close();
-			</script>
-		</body>
-		</html>
-	`))
+	// 使用统一的登录处理函数
+	setupLogin(&user, c)
 }
 
 func NodelocBind(c *gin.Context) {
